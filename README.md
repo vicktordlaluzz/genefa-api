@@ -1,4 +1,4 @@
-# SIADCON - API
+# GENEFA - API
 _Backend para la aplicacion GENEFA_
 
 ### Instalación 🔧
