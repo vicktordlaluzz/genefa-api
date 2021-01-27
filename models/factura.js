@@ -26,7 +26,7 @@ const facturaSchema = Schema({
         },
         retiros: {
             type: Number,
-            required: true
+            default: 0.00
         },
         rendimiento: {
             type: Number,
@@ -52,7 +52,7 @@ const facturaSchema = Schema({
         },
         retiros: {
             type: Number,
-            required: true
+            default: 0.00
         },
         rendimiento: {
             type: Number,

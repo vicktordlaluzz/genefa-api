@@ -6,7 +6,8 @@ const { validarJWT } = require('../middlewares/jwt-validator');
 const router = Router();
 const {
     createTramite,
-    getTramites
+    getTramites,
+    getTramite
 } = require('../controllers/tramites')
 
 
@@ -24,5 +25,6 @@ router.post('/', [
 
 router.get('/', [], getTramites);
 
+router.get('/:tramiteID',getTramite);
 
 module.exports = router;

@@ -1,5 +1,7 @@
 const { response } = require('express');
 const Tramite = require('../models/tramite/tramite');
+const Cliente = require('../models/cliente/cliente');
+const { generarHistorial } = require('../helpers/facturas');
 
 const getTramites = async(req, res = response) => {
     try {
@@ -22,6 +24,8 @@ const createTramite = async(req, res = response) => {
     try {
         const tramite = new Tramite(req.body);
         const tramiteDB = await tramite.save();
+        const clienteDB = await Cliente.findById(tramiteDB.cliente);
+        generarHistorial(req.body.anio,req.body.salAnual,clienteDB._id,tramiteDB._id,req.body.banco,req.body.deduccion);
         res.json({
             ok: true,
             msg: 'El tramite ha sido dado de alta correctamente',
@@ -40,7 +44,8 @@ const deleteTramite = async(req, res = response) => {
     const id = req.params.id;
 
     try {
-        const tramiteDB = await Tramite.findById(id);
+        const tramiteDB = await Tramite.findById(id)
+        .populate('cliente', 'nombre apaterno amaterno rfc');
 
         // Verifica si existe el usuario
         if (!tramiteDB) {
@@ -109,24 +114,7 @@ const getTramite = async(req, res = response) => {
     tramiteID = req.params.tramiteID;
     try {
         const tramite = await Tramite.findById(tramiteID)
-            .populate({
-                path: 'registro',
-                populate: {
-                    path: 'registro',
-                    model: 'Registro'
-                }
-            }).populate({
-                path: 'hipoteca',
-                populate: {
-                    path: 'registro',
-                    model: 'Hipoteca'
-                }
-            })
-            .populate('tipo', 'nombre')
-            .populate('usuarioAlta', 'nombre')
-            .populate('usuarioMod', 'nombre img')
-            .populate('cliente', 'nombre apaterno amaterno rfc')
-            .populate('estado', 'estado');
+        .populate('cliente', 'nombre apaterno amaterno rfc');
         if (!tramite) {
             return res.status(400).json({
                 ok: false,
@@ -189,5 +177,6 @@ const getByCliente = async(req, res = response) => {
 
 module.exports = {
     createTramite,
-    getTramites
+    getTramites,
+    getTramite
 };

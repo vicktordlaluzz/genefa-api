@@ -17,11 +17,8 @@ function aleatorio(min, max) {
 
 // Redondea la cifra dada a dos decimales
 function redondeo(cantidad) {
-    console.log(cantidad);
     let cifra = cantidad * 100;
-    console.log(cifra);
     let redondo = Math.round(cifra) / 100;
-    console.log(redondo);
     return redondo;
 }
 
@@ -67,7 +64,9 @@ function sumarArray(array) {
     return suma;
 }
 
-function aniosTrabajados(edad){
+function aniosTrabajados(curp,anio){
+    const nacimiento = getNacimiento(curp);
+    const edad = getEdad(anio,nacimiento)
     return edad - 25;
 }
 
@@ -145,36 +144,97 @@ function  getBasica(edad) {
     }
 }
 
-
-function crearFactura(anio, cliente, periodo) {
-    // Checa si existe la factura que se esta intentando generar
-    const existeFactura = await Factura.findOne({anio: anio, periodo: periodo, cliente: cliente});
-    if(existeFactura){
-        return 'Ya existe la factura solicitada';
-    }
-    let facturaAnterior;
-    // Obtiene la ultima factura
-    if (periodo == 1) {
-        facturaAnterior = await Factura.findOne({anio: (anio -1), periodo: 3, cliente: cliente});
-    }else {
-        facturaAnterior = await Factura.findOne({anio: anio, periodo: (periodo -1), cliente: cliente});
-    }
-
-    // Se crea nueva factura
-    let factura = new Factura();
-    const cliente = await Cliente.findOne({_id: cliente});
-
-    if (facturaAnterior) {
-        factura.aRetiro.sA = facturaAnterior.aRetiro.suma;
-        factura.aVoluntario.sA = facturaAnterior.aVoluntario.suma;
-        factura.aVivienda.sA = facturaAnterior.aVivienda.suma;
+// Obtiene los saldos de la ultima factura
+// en caso de que exista
+async function getSaldoAnterior(cliente,anio,periodo){
+    let facAnt;
+    if ( periodo == 1 ) {
+        facAnt = await Factura.findOne({cliente: cliente, anio: (anio - 1), periodo: 3});
     } else {
-        const aniosT = aniosTrabajados();
-        if (condition) {
-            
-        }
+        facAnt = await Factura.findOne({cliente: cliente, anio: anio, periodo: (periodo - 1)});
     }
 
-    
+    if (!facAnt) {
+        return false;
+    }
+    const saldos = {
+        aV: facAnt.aVoluntario.suma,
+        aR: facAnt.aRetiro.suma,
+        aViv: facAnt.aVivienda.suma,
+    }
+    return saldos;
+}
 
+async function crearSaldos(cliente, anio,salarioAnual){
+    const clienteDB = await Cliente.findById(cliente);
+    const aTrabajados = aniosTrabajados(clienteDB.curp,anio);
+
+    const saldos = {
+        aR: aTrabajados * ((salarioAnual * 6.5)/100),
+        aV: aTrabajados * ((salarioAnual * 0.5)/100),
+        aViv: aTrabajados * ((salarioAnual * 5)/100)
+    }
+    return saldos;
+}
+
+async function crearFactura(anio, cliente, periodo, salarioPeriodo,tramite,banco, aportacionVol) {
+    // Se obitnen los datos del cliente
+    const clienteDB = await Cliente.findOne({_id: cliente});
+    const nacimiento = getNacimiento(clienteDB.curp);
+    const edad = getEdad(anio,nacimiento)
+    getEdad(anio,)
+    const antiguedad = aniosTrabajados(clienteDB.curp,anio);
+    if (antiguedad < 0) {
+        return false;
+    }
+    let saldosAnteriores = await getSaldoAnterior(cliente,anio,periodo);
+    if (!saldosAnteriores) {
+        saldosAnteriores = await crearSaldos(cliente,anio,(salarioPeriodo*3));
+    }
+    let factura = new Factura();
+    factura.tramite = tramite;
+    factura.basicaN = getBasicaNueva(edad);
+    factura.basicaA = getBasica(edad);
+    // Ahorro para el retiro
+    factura.aRetiro.sA = saldosAnteriores.aR;
+    factura.aRetiro.aportacion = (salarioPeriodo * 6.5) / 100;
+    
+    
+    factura.aRetiro.rendimiento = (factura.aRetiro.sA * (5.54/3)) / 100;
+    factura.aRetiro.comision = (factura.aRetiro.rendimiento * (33.5)) / 100;
+    factura.aRetiro.suma = factura.aRetiro.sA + factura.aRetiro.aportacion + factura.aRetiro.rendimiento - factura.aRetiro.comision;
+    
+    // Ahorro voluntario
+    factura.aVoluntario.sA = saldosAnteriores.aV;
+    factura.aVoluntario.aportacion = aportacionVol;
+    factura.aVoluntario.rendimiento = (factura.aVoluntario.sA * (5.54/3)) / 100;
+    factura.aVoluntario.comision = (factura.aVoluntario.rendimiento * (33.5)) / 100;
+    factura.aVoluntario.suma = factura.aVoluntario.sA + factura.aVoluntario.aportacion + factura.aVoluntario.rendimiento - factura.aVoluntario.comision;
+    
+    // Ahorro vivienda
+    factura.aVivienda.sA = saldosAnteriores.aViv;
+    factura.aVivienda.mov = (salarioPeriodo * 5) / 100
+    factura.aVivienda.suma = factura.aVivienda.sA + factura.aVivienda.aportacion;
+
+    factura.banco = banco;
+    factura.cliente = cliente;
+    factura.anio = anio;
+    factura.periodo = periodo;
+    const facDB = factura.save();
+     if (facDB) {
+         return true;
+    }
+}
+
+// Genera las tres facturas de afore de un anio
+function generarHistorial(anio, saLarioAnual, cliente, tramite, banco, aportacionVol) {
+    // el salario se divide en 3
+    const salarioPeriodico = getSumaAleatoria(saLarioAnual,3);
+    crearFactura(anio,cliente,1,salarioPeriodico[0],tramite,banco,0);
+    crearFactura(anio,cliente,2,salarioPeriodico[1],tramite,banco,0);
+    crearFactura(anio,cliente,3,salarioPeriodico[2],tramite,banco,aportacionVol);
+}
+
+module.exports = {
+    generarHistorial
 }
