@@ -69,17 +69,21 @@ const facturaSchema = Schema({
     },
     aVivienda: {
         sA: {
-            type: String,
+            type: Number,
             required: true
         },
         mov: {
-            type: String,
+            type: Number,
             required: true
         },
         suma: {
-            type: String,
+            type: Number,
             required: true
         }
+    },
+    suma: {
+        type: Number,
+        required: true
     },
     banco: {
         type: String,
@@ -101,6 +105,28 @@ const facturaSchema = Schema({
     created_at: {
         type: Date,
         default: new Date()
+    },
+    detalles: {
+        retiro: {
+            type: Number,
+            required: true
+        },
+        cesantia: {
+            type: Number,
+            required: true
+        },
+        cuotaSoc: {
+            type: Number,
+            required: true
+        }
+    },
+    corte: {
+        type: String,
+        required: true,
+    },
+    periodo: {
+        type: String,
+        required: true
     }
 });
 

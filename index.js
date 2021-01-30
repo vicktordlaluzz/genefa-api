@@ -4,7 +4,7 @@ const express = require('express');
 const cors = require('cors');
 
 // configuracion de la base de datos
-const { dbConnection } = require('./database/config');
+const { dbConnection, setUp } = require('./database/config');
 
 // Crear el servidor de express
 const app = express();
@@ -17,10 +17,12 @@ app.use(express.json());
 
 // Base de datos
 dbConnection();
+setUp();
 
 // Rutas
 app.use('/api/clientes/', require('./routes/clientes'));
 app.use('/api/tramites/', require('./routes/tramites'));
+app.use('/api/facturas/', require('./routes/facturas'));
 
 
 app.listen(process.env.PORT, () => {
