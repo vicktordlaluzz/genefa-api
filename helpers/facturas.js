@@ -223,7 +223,7 @@ async function crearFactura(anio, cliente, periodo, salarioPeriodo,tramite,banco
     const facDB = await factura.save();
      if (facDB) {
          console.log(facDB);
-         await generarMovimientos(facDB._id,facDB.aVivienda.mov,facDB.aRetiro.aportacion,facDB.aVoluntario.aportacion,salarioPeriodo);
+         await generarMovimientos(facDB._id,facDB.aVivienda.mov,facDB.aRetiro.aportacion,facDB.aVoluntario.aportacion,salarioPeriodo,periodo,anio);
          return facDB;
     }
 }
@@ -238,84 +238,102 @@ async function generarHistorial(anio, saLarioAnual, cliente, tramite, banco, apo
     const fac3 = await crearFactura(anio,cliente,3,salarioPeriodico[2],tramite,banco,aportacionVol,fac2);
 }
 
-async function generarMovimientos(facturaID, aVivienda, aRetiro, aVoluntario, salario){
+async function generarMovimientos(facturaID, aVivienda, aRetiro, aVoluntario, salario,periodo,anio){
     const mVivienda = getSumaAleatoria(aVivienda,2);
     const mVoluntario = getSumaAleatoria(aVoluntario,4);
     const mCesT = getSumaAleatoria(((aRetiro * 17.30769230769231) / 100),2);
     const mCesP = getSumaAleatoria(((aRetiro * 48.46153846153846) / 100),2);
     const mRetP = getSumaAleatoria(((aRetiro * 30.76923076923077) / 100),2);
     const mCSoc = getSumaAleatoria(((aRetiro * 3.461538461538462) / 100),2);
+    const meses = generarFechas(periodo);
+    let dias=[];
+    dias[0] = Math.trunc(aleatorio(1,6));
+    dias[1] = Math.trunc(aleatorio(25,30));
     try {
         await Movimiento.insertMany([{
             factura: facturaID,
             salBase: ((salario * 3)/360) * 30,
             monto: mCesT[0],
-            concepto: 'Aportación TRABAJADOR en Subcuenta CESANTíA EN EDAD AVANZADA Y VEJEZ ISSSTE'
+            concepto: 'Aportación TRABAJADOR en Subcuenta CESANTíA EN EDAD AVANZADA Y VEJEZ ISSSTE',
+            fecha: `${dias[0]}/${meses[0]}/${anio}`
         },{
             factura: facturaID,
             salBase: ((salario * 3)/360) * 30,
             monto: mCesT[1],
-            concepto: 'Aportación TRABAJADOR en Subcuenta CESANTíA EN EDAD AVANZADA Y VEJEZ ISSSTE'
+            concepto: 'Aportación TRABAJADOR en Subcuenta CESANTíA EN EDAD AVANZADA Y VEJEZ ISSSTE',
+            fecha: `${dias[1]}/${meses[2]}/${anio}`
         },{
             factura: facturaID,
             salBase: ((salario * 3)/360) * 30,
             monto: mCesP[0],
-            concepto: 'Aportación PATRONAL en Subcuenta CESANTíA EN EDAD AVANZADA Y VEJEZ ISSSTE'
+            concepto: 'Aportación PATRONAL en Subcuenta CESANTíA EN EDAD AVANZADA Y VEJEZ ISSSTE',
+            fecha: `${dias[0]}/${meses[0]}/${anio}`
         },{
             factura: facturaID,
             salBase: ((salario * 3)/360) * 30,
             monto: mCesP[1],
-            concepto: 'Aportación PATRONAL en Subcuenta CESANTíA EN EDAD AVANZADA Y VEJEZ ISSSTE'
+            concepto: 'Aportación PATRONAL en Subcuenta CESANTíA EN EDAD AVANZADA Y VEJEZ ISSSTE',
+            fecha: `${dias[1]}/${meses[2]}/${anio}`
         },{
             factura: facturaID,
             salBase: ((salario * 3)/360) * 30,
             monto: mRetP[0],
-            concepto: 'Aportación PATRONAL en Subcuenta RETIRO ISSSTE 08'
+            concepto: 'Aportación PATRONAL en Subcuenta RETIRO ISSSTE 08',
+            fecha: `${dias[0]}/${meses[0]}/${anio}`
         },{
             factura: facturaID,
             salBase: ((salario * 3)/360) * 30,
             monto: mRetP[1],
-            concepto: 'Aportación PATRONAL en Subcuenta RETIRO ISSSTE 08'
+            concepto: 'Aportación PATRONAL en Subcuenta RETIRO ISSSTE 08',
+            fecha: `${dias[1]}/${meses[2]}/${anio}`
         },{
             factura: facturaID,
             salBase: ((salario * 3)/360) * 30,
             monto: mCSoc[0],
-            concepto: 'Aportación en Subcuenta CUOTA SOCIAL ISSSTE'
+            concepto: 'Aportación en Subcuenta CUOTA SOCIAL ISSSTE',
+            fecha: `${Math.trunc(aleatorio(15,19))}/${meses[1]}/${anio}`
         },{
             factura: facturaID,
             salBase: ((salario * 3)/360) * 30,
             monto: mCSoc[1],
-            concepto: 'Aportación en Subcuenta CUOTA SOCIAL ISSSTE'
+            concepto: 'Aportación en Subcuenta CUOTA SOCIAL ISSSTE',
+            fecha: `${Math.trunc(aleatorio(15,19))}/${meses[3]}/${anio}`
         },{
             factura: facturaID,
             salBase: ((salario * 3)/360) * 30,
             monto: mVivienda[0],
-            concepto: 'Aportación FOVISSSTE 2008'
+            concepto: 'Aportación FOVISSSTE 2008',
+            fecha: `${Math.trunc(aleatorio(15,19))}/${meses[0]}/${anio}`
         },{
             factura: facturaID,
             salBase: ((salario * 3)/360) * 30,
             monto: mVivienda[1],
-            concepto: 'Aportación FOVISSSTE 2008'
+            concepto: 'Aportación FOVISSSTE 2008',
+            fecha: `${Math.trunc(aleatorio(20,30))}/${meses[2]}/${anio}`
         },{
             factura: facturaID,
             salBase: ((salario * 3)/360) * 30,
             monto: mVoluntario[0] || 0,
-            concepto: 'Aportación TRABAJADOR en Cuenta AHORRO VOLUNTARIO'
+            concepto: 'Aportación TRABAJADOR en Cuenta AHORRO VOLUNTARIO',
+            fecha: `${Math.trunc(aleatorio(15,19))}/${meses[0]}/${anio}`
         },{
             factura: facturaID,
             salBase: ((salario * 3)/360) * 30,
             monto: mVoluntario[1] || 0,
-            concepto: 'Aportación TRABAJADOR en Cuenta AHORRO VOLUNTARIO'
+            concepto: 'Aportación TRABAJADOR en Cuenta AHORRO VOLUNTARIO',
+            fecha: `${Math.trunc(aleatorio(15,19))}/${meses[1]}/${anio}`
         },{
             factura: facturaID,
             salBase: ((salario * 3)/360) * 30,
             monto: mVoluntario[2] || 0,
-            concepto: 'Aportación TRABAJADOR en Cuenta AHORRO VOLUNTARIO'
+            concepto: 'Aportación TRABAJADOR en Cuenta AHORRO VOLUNTARIO',
+            fecha: `${Math.trunc(aleatorio(15,19))}/${meses[2]}/${anio}`
         },{
             factura: facturaID,
             salBase: ((salario * 3)/360) * 30,
             monto: mVoluntario[3] || 0,
-            concepto: 'Aportación TRABAJADOR en Cuenta AHORRO VOLUNTARIO'
+            concepto: 'Aportación TRABAJADOR en Cuenta AHORRO VOLUNTARIO',
+            fecha: `${Math.trunc(aleatorio(15,19))}/${meses[3]}/${anio}`
         }]
         );
     } catch (error) {
@@ -323,6 +341,27 @@ async function generarMovimientos(facturaID, aVivienda, aRetiro, aVoluntario, sa
     }
 
 
+}
+
+function generarFechas(periodo){
+    let meses=[];
+    if(periodo == 1){
+        meses[0] = '01';            
+        meses[1] = '02';            
+        meses[2] = '03';            
+        meses[3] = '04';            
+    }else if (periodo == 2) {
+        meses[0] = '05';            
+        meses[1] = '06';            
+        meses[2] = '07';            
+        meses[3] = '08';        
+    }else {
+        meses[0] = '09';            
+        meses[1] = '10';            
+        meses[2] = '11';            
+        meses[3] = '12';    
+    }
+    return meses;
 }
 
 

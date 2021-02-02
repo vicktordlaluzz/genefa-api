@@ -17,6 +17,10 @@ const movimientoSchema = Schema({
     concepto: {
         type: String,
         required: true
+    },
+    fecha: {
+        type: String,
+        required: true
     }
 });
 

@@ -1,5 +1,6 @@
 const { response } = require('express');
 const Factura = require('../models/factura');
+const Movimiento = require('../models/movimiento');
 
 const getFacturasByTramite = async(req, res = response) => {
     try {
@@ -22,7 +23,7 @@ const getFacturasByTramite = async(req, res = response) => {
 const getFacturaByID = async(req, res = response) => {
     try {
         const fac = req.params.factura;
-        const factura = await Factura.find({_id: fac})
+        const factura = await Factura.findOne({_id: fac})
             .populate('cliente');
         res.json({
             ok: true,
@@ -37,7 +38,25 @@ const getFacturaByID = async(req, res = response) => {
     }
 };
 
+const getMovimientos = async(req, res = response) => {
+    try {
+        const fac = req.params.factura;
+        const movimientos = await Movimiento.find({factura: fac});
+        res.json({
+            ok: true,
+            movimientos
+        });
+    } catch (error) {
+        console.log(error);
+        res.status(500).json({
+            ok: false,
+            msg: 'Algo salio mal por favor contacte al administrador'
+        });
+    }
+};
+
 module.exports = {
     getFacturasByTramite,
-    getFacturaByID
+    getFacturaByID,
+    getMovimientos
 }
