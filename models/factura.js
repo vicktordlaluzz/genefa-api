@@ -127,6 +127,9 @@ const facturaSchema = Schema({
     periodo: {
         type: String,
         required: true
+    },
+    periodoN: {
+        type: Number
     }
 });
 

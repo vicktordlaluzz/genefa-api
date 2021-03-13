@@ -68,7 +68,7 @@ function sumarArray(array) {
 
 function aniosTrabajados(curp,anio){
     const edad = getEdad(anio,curp);
-    console.log(edad);
+    // console.log(edad);
     return edad - 25;
 }
 
@@ -148,7 +148,7 @@ function  getBasica(edad) {
 
 function crearSaldos(curp, anio,salarioAnual){
     const aTrabajados = aniosTrabajados(curp,anio);
-    console.log(aTrabajados);
+    // console.log(aTrabajados);
 
     const saldos = {
         aR: aTrabajados * ((salarioAnual * 3.5)/100),
@@ -165,22 +165,15 @@ async function crearFactura(anio, cliente, periodo, salarioPeriodo,tramite,banco
         return false;
     }
     let factura = new Factura();
-    if(facturaAnt){
+    if(facturaAnt == null ){
+        const saldosAnt = crearSaldos(clienteDB.curp,anio,salarioPeriodo);
+        factura.aRetiro.sA = saldosAnt.aR;
+        factura.aVoluntario.sA = saldosAnt.aV;
+        factura.aVivienda.sA = saldosAnt.aViv;
+    }else {
         factura.aRetiro.sA = facturaAnt.aRetiro.suma;
         factura.aVoluntario.sA = facturaAnt.aVoluntario.suma;
         factura.aVivienda.sA = facturaAnt.aVivienda.suma;
-    }else {
-        const facAnt = await Factura.findOne({cliente: cliente, anio: (anio - 1), periodo: 3});
-        if(!facAnt){
-            const saldosAnt = crearSaldos(clienteDB.curp,anio,salarioPeriodo);
-            factura.aRetiro.sA = saldosAnt.aR;
-            factura.aVoluntario.sA = saldosAnt.aV;
-            factura.aVivienda.sA = saldosAnt.aViv;
-        }else {
-            factura.aRetiro.sA = facAnt.aRetiro.suma;
-            factura.aVoluntario.sA = facAnt.aVoluntario.suma;
-            factura.aVivienda.sA = facAnt.aVivienda.suma;
-        }
     }
     factura.tramite = tramite;
     factura.basicaN = getBasicaNueva(edad);
@@ -209,7 +202,7 @@ async function crearFactura(anio, cliente, periodo, salarioPeriodo,tramite,banco
     factura.banco = banco;
     factura.cliente = cliente;
     factura.anio = anio;
-    factura.periodo = periodo;
+    factura.periodoN = periodo;
     if (periodo === 1) {
         factura.corte = `30 de abril de ${anio}`;
         factura.periodo = `Del 01 de mayo de ${anio -1} al 30 de abril de ${anio}`;
@@ -222,7 +215,6 @@ async function crearFactura(anio, cliente, periodo, salarioPeriodo,tramite,banco
     }
     const facDB = await factura.save();
      if (facDB) {
-         console.log(facDB);
          await generarMovimientos(facDB._id,facDB.aVivienda.mov,facDB.aRetiro.aportacion,facDB.aVoluntario.aportacion,salarioPeriodo,periodo,anio);
          return facDB;
     }
@@ -232,10 +224,12 @@ async function crearFactura(anio, cliente, periodo, salarioPeriodo,tramite,banco
 async function generarHistorial(anio, saLarioAnual, cliente, tramite, banco, aportacionVol) {
     // el salario se divide en 3
     const salarioPeriodico = getSumaAleatoria(saLarioAnual,3);
-    let facturaAnterior = await Factura.findOne({anio: (anio -1), periodo: 3, cliente: cliente});
-    const fac1 = await crearFactura(anio,cliente,1,salarioPeriodico[0],tramite,banco,0,facturaAnterior);
+    const anioA = anio - 1;
+    let facturaAnterior = await Factura.findOne({anio: anioA, periodoN: 3, cliente: cliente});
+    console.log(`anio del tramite: ${anio}`,facturaAnterior);
+    const fac1 = await crearFactura(anio,cliente,1,salarioPeriodico[0],tramite,banco,aportacionVol,facturaAnterior);
     const fac2 = await crearFactura(anio,cliente,2,salarioPeriodico[1],tramite,banco,0,fac1);
-    const fac3 = await crearFactura(anio,cliente,3,salarioPeriodico[2],tramite,banco,aportacionVol,fac2);
+    const fac3 = await crearFactura(anio,cliente,3,salarioPeriodico[2],tramite,banco,0,fac2);
 }
 
 async function generarMovimientos(facturaID, aVivienda, aRetiro, aVoluntario, salario,periodo,anio){
@@ -247,7 +241,7 @@ async function generarMovimientos(facturaID, aVivienda, aRetiro, aVoluntario, sa
     const mCSoc = getSumaAleatoria(((aRetiro * 3.461538461538462) / 100),2);
     const meses = generarFechas(periodo);
     let dias=[];
-    dias[0] = Math.trunc(aleatorio(1,6));
+    dias[0] = '0' + Math.trunc(aleatorio(1,6));
     dias[1] = Math.trunc(aleatorio(25,30));
     try {
         await Movimiento.insertMany([{
