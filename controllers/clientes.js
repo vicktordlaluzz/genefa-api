@@ -21,6 +21,7 @@ const getClientes = async(req, res = response) => {
 
 const createCliente = async(req, res = response) => {
     const data = req.body;
+    console.log(data);
     try {
         const cliente = Cliente({
             nombre: data.nombre,
@@ -29,6 +30,7 @@ const createCliente = async(req, res = response) => {
             curp: data.curp,
             rfc: data.rfc,
             nss: data.nss,
+            email: data.email || null,
             direccion: {
                 calle: data.calle,
                 n_ext: data.n_ext,
