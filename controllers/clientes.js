@@ -30,7 +30,7 @@ const createCliente = async(req, res = response) => {
             curp: data.curp,
             rfc: data.rfc,
             nss: data.nss,
-            email: data.email || null,
+            email: data.email,
             direccion: {
                 calle: data.calle,
                 n_ext: data.n_ext,
