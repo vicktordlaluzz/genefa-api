@@ -23,6 +23,8 @@ setUp();
 app.use('/api/clientes/', require('./routes/clientes'));
 app.use('/api/tramites/', require('./routes/tramites'));
 app.use('/api/facturas/', require('./routes/facturas'));
+app.use('/api/usuarios/', require('./routes/usuarios'));
+app.use('/api/auth/', require('./routes/auth'));
 
 
 app.listen(process.env.PORT, () => {

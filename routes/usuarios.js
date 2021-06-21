@@ -6,53 +6,46 @@ const { validarJWT } = require('../middlewares/jwt-validator');
 const fileUpload = require('express-fileupload');
 
 const router = Router();
-const { getUsuarios, createUsuario, updateUsuario, deleteUsuario, chargeImg, getImg, getUsuario } = require('../controllers/usuarios');
+const { createUsuario,
+        getUsuarios,
+        getSolicitudes,
+        deleteUsuario,
+        activarUsuario } = require('../controllers/usuarios');
 
-// Obtener todos los usuarios
-router.get('/', [
-    validarJWT
-], getUsuarios);
 
-router.get('/:usuario', [
-    validarJWT
-], getUsuario);
 
 // Crear un nuevo usario
 router.post('/', [
     //validarJWT,
     check('nombre', 'El campo nombre es obligatorio').notEmpty(),
     check('apaterno', 'El campo a. paterno es obligatorio').notEmpty(),
-    check('rfc', 'El campo rfc es obligatorio').notEmpty(),
-    check('curp', 'El campo curp es obligatorio').notEmpty(),
-    check('puesto', 'El campo puesto es obligatorio').notEmpty(),
-    check('calle', 'El campo calle es obligatorio').notEmpty(),
-    check('colonia', 'El campo puesto es obligatorio').notEmpty(),
-    check('estado', 'El campo puesto es obligatorio').notEmpty(),
-    check('municipio', 'El campo puesto es obligatorio').notEmpty(),
-    check('telefono', 'El campo puesto es obligatorio').notEmpty(),
     check('email', 'El campo email debe contener un email valido').isEmail(),
     validarCampos
 ], createUsuario);
 
-// Actualiza un usuario
-router.put('/:id', [
-    validarJWT
-], updateUsuario);
+// obtener usuarios activos
+router.get('/activos', [
+    validarJWT,
+    getUsuarios
+]);
 
-// Actualiza un usuario
+// obtener solicitudes de usuario
+router.get('/solicitudes', [
+    validarJWT,
+    getSolicitudes
+]);
+
+// eliminar un usuario
 router.delete('/:id', [
-    validarJWT
-], deleteUsuario);
+    validarJWT,
+    deleteUsuario
+]);
 
-router.use(fileUpload());
-
-// obtener imgen de usuario
-router.get('/img/:img', getImg);
-
-router.post('/img/:usuario', [
-    validarJWT
-], chargeImg);
-
+// aprobar un usuario
+router.put('/solicitudes/:id', [
+    validarJWT,
+    activarUsuario
+]);
 
 
 module.exports = router;

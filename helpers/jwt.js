@@ -1,15 +1,44 @@
+const jwt = require('jsonwebtoken');
 
+const generarJWT = (uid) => {
 
-const aleatorioEntero = (min, max) => {
-
-
+    return new Promise((resolve, reject) => {
+        const pyload = {
+            uid
+        };
+        jwt.sign(pyload, process.env.JWT_SECRET, {
+            expiresIn: '2h'
+        }, (err, token) => {
+            if (err) {
+                console.log(err);
+                reject('No se pudo generar el JWT');
+            } else {
+                resolve(token);
+            }
+        });
+    });
 
 };
 
-const aleatorioDecimal = (min, max) => {
-    const aleatorio = Math.random() * (max - min) + min;
-    return aleatorio;
-}
+const validarToken = (uid) => {
+
+    return new Promise((resolve, reject) => {
+        const pyload = {
+            uid
+        };
+        jwt.sign(pyload, process.env.JWT_SECRET, {
+            expiresIn: '2h'
+        }, (err, token) => {
+            if (err) {
+                console.log(err);
+                reject('No se pudo generar el JWT');
+            } else {
+                resolve(token);
+            }
+        });
+    });
+
+};
 
 module.exports = {
     generarJWT

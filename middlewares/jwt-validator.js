@@ -4,11 +4,11 @@ const jwt = require('jsonwebtoken');
 const validarJWT = (req, res = response, next) => {
 
     // leer token
-    const token = req.header('x-token');
+    const token = req.header('access-token');
     if (!token) {
         return res.status(401).json({
             ok: false,
-            msg: 'no enviaste el token'
+            msg: 'El usuario no esta autenticado'
         })
     }
 
