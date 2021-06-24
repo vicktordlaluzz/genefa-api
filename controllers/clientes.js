@@ -3,7 +3,7 @@ const Cliente = require('../models/cliente/cliente')
 
 const getClientes = async(req, res = response) => {
     try {
-        const clientes = await Cliente.find({activo: true});
+        const clientes = await Cliente.find({usuario: req.uid});
         res.json({
             ok: true,
             clientes
@@ -31,6 +31,8 @@ const createCliente = async(req, res = response) => {
             rfc: data.rfc,
             nss: data.nss,
             email: data.email,
+            comentarios: data.comentarios,
+            usuario: req.uid,
             direccion: {
                 calle: data.calle,
                 n_ext: data.n_ext,

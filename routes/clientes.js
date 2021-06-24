@@ -9,10 +9,12 @@ const { getClientes, createCliente, updateCliente, deleteCliente, getCliente } =
 
 // obtener todos los clientes
 router.get('/', [
+    validarJWT
 ], getClientes);
 
 // Crear un nuevo cliente
 router.post('/', [
+    validarJWT,
     check('nombre', 'El campo nombre es obligatorio').notEmpty(),
     check('apaterno', 'El campo apaterno es obligatorio').notEmpty(),
     check('curp', 'El campo curp es obligatorio').notEmpty(),

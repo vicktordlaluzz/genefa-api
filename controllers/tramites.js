@@ -5,7 +5,7 @@ const { generarHistorial } = require('../helpers/facturas');
 
 const getTramites = async(req, res = response) => {
     try {
-        const tramites = await Tramite.find()
+        const tramites = await Tramite.find({usuario: req.uid})
             .populate('cliente', 'nombre apaterno amaterno rfc');
         res.json({
             ok: true,
@@ -22,6 +22,8 @@ const getTramites = async(req, res = response) => {
 
 const createTramite = async(req, res = response) => {
     try {
+        req.body.usuario = req.uid;
+        console.log(req.body);
         const tramite = new Tramite(req.body);
         const tramiteDB = await tramite.save();
         const clienteDB = await Cliente.findById(tramiteDB.cliente);
@@ -134,28 +136,12 @@ const getTramite = async(req, res = response) => {
     }
 };
 
+
 const getByCliente = async(req, res = response) => {
-    clienteId = req.params.clienteId;
+    const clienteId = req.params.cliente;
     try {
-        const tramite = await Tramite.find({ cliente: clienteId })
-            .populate({
-                path: 'registro',
-                populate: {
-                    path: 'registro',
-                    model: 'Registro'
-                }
-            }).populate({
-                path: 'hipoteca',
-                populate: {
-                    path: 'registro',
-                    model: 'Hipoteca'
-                }
-            })
-            .populate('tipo', 'nombre')
-            .populate('usuarioAlta', 'nombre')
-            .populate('usuarioMod', 'nombre img')
-            .populate('cliente', 'nombre apaterno amaterno rfc')
-            .populate('estado', 'estado');
+        console.log(clienteId);
+        const tramite = await Tramite.find({ cliente: clienteId });
         if (!tramite) {
             return res.status(400).json({
                 ok: false,
@@ -178,5 +164,6 @@ const getByCliente = async(req, res = response) => {
 module.exports = {
     createTramite,
     getTramites,
-    getTramite
+    getTramite,
+    getByCliente
 };

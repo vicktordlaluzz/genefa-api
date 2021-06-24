@@ -7,12 +7,14 @@ const router = Router();
 const {
     createTramite,
     getTramites,
-    getTramite
+    getTramite,
+    getByCliente
 } = require('../controllers/tramites')
 
 
 
 router.post('/', [
+    validarJWT,
     check('cliente', 'No se recibio el cliente').notEmpty(),
     check('anio', 'El campo año es obligatorio').notEmpty(),
     check('salAnual', 'El campo salario anual es obligatorio').notEmpty(),
@@ -23,8 +25,12 @@ router.post('/', [
     validarCampos
 ], createTramite);
 
-router.get('/', [], getTramites);
+router.get('/', [
+    validarJWT
+], getTramites);
 
 router.get('/:tramiteID',getTramite);
+
+router.get('/cliente/:cliente',getByCliente);
 
 module.exports = router;

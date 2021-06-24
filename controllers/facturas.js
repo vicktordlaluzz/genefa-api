@@ -6,7 +6,7 @@ const getFacturasByTramite = async(req, res = response) => {
     try {
         const tramite = req.params.tramite
         const facturas = await Factura.find({tramite: tramite})
-        .populate('cliente', 'nss nombre apaterno amaterno direccion curp rfc');
+        .populate('cliente', 'nss nombre apaterno amaterno direccion curp rfc email');
         res.json({
             ok: true,
             facturas

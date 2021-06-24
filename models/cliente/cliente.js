@@ -59,19 +59,16 @@ const ClienteSchema = Schema({
             required: true
         }
     },
+    usuario: {
+        type: Schema.Types.ObjectId,
+        ref: 'Usuario'
+    },
     comentarios: {
         type: String
-    },
-    activo: {
-        type: Boolean,
-        default: true
     },
     created_at: {
         type: Date,
         default: new Date()
-    },
-    update_at: {
-        type: Date
     }
 });
 

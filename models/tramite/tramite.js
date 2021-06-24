@@ -34,6 +34,11 @@ const tramiteSchema = Schema({
     created_at: {
         type: Date,
         default: new Date()
+    },
+    usuario: {
+        type: Schema.Types.ObjectId,
+        ref: 'Usuario',
+        required: true
     }
 });
 
