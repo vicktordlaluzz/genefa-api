@@ -29,8 +29,8 @@ router.get('/', [
     validarJWT
 ], getTramites);
 
-router.get('/:tramiteID',getTramite);
+router.get('/:tramiteID',validarJWT,getTramite);
 
-router.get('/cliente/:cliente',getByCliente);
+router.get('/cliente/:cliente',validarJWT,getByCliente);
 
 module.exports = router;

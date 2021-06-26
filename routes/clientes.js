@@ -35,10 +35,10 @@ router.post('/', [
 //     validarJWT
 // ], updateCliente);
 
-router.get('/:cliente', [], getCliente);
+router.get('/:cliente', [validarJWT], getCliente);
 
 
 // Actualiza un usuario
-router.delete('/:id', [], deleteCliente);
+router.delete('/:id', [validarJWT], deleteCliente);
 
 module.exports = router;

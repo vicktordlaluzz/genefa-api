@@ -140,8 +140,6 @@ const refreshToken = async(req, res = response) => {
         }
         // Generar el JWT
         const token = await generarJWT(user._id);
-
-        console.log(user);
         res.json({
             ok: true,
             token,
