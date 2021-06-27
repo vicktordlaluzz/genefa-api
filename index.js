@@ -19,6 +19,7 @@ app.use(express.json());
 dbConnection();
 setUp();
 
+app.use( express.static('public'));
 // Rutas
 app.use('/api/clientes/', require('./routes/clientes'));
 app.use('/api/tramites/', require('./routes/tramites'));
