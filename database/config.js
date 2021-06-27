@@ -7,7 +7,7 @@ const dbConnection = async() => {
         // process.env.DB_CON
         // LOCAL
         // process.env.DB_CON_LOCAL
-        await mongoose.connect(process.env.DB_CON_LOCAL, {
+        await mongoose.connect(process.env.DB, {
             useNewUrlParser: true,
             useUnifiedTopology: true,
             useCreateIndex: true
